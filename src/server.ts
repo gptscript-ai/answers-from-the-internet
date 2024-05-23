@@ -30,6 +30,7 @@ async function main (): Promise<void> {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.post('/ask', async (req: Request, res: Response) => {
+    const initStart = new Date().getTime()
     const data = req.body
     console.log(data)
     const question: string = data.question ?? ''
@@ -68,7 +69,9 @@ async function main (): Promise<void> {
         mkdirSync(sessionDir)
       }
     }
+    console.log('init time:', new Date().getTime() - initStart, 'ms')
 
+    const browserLaunchStart = new Date().getTime()
     let context: BrowserContext
     if (contextMap[sessionID] !== undefined) {
       context = contextMap[sessionID]
@@ -84,6 +87,7 @@ async function main (): Promise<void> {
           ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain']
         })
     }
+    console.log('browser launch time:', new Date().getTime() - browserLaunchStart, 'ms')
 
     context.on('close', () => {
       setTimeout(() => {
@@ -92,22 +96,29 @@ async function main (): Promise<void> {
     })
 
     // Generate the query to use with Google
+    const genQueryStart = new Date().getTime()
     const query = await genQuery(question)
+    console.log('gen query time:', new Date().getTime() - genQueryStart, 'ms')
 
     // Surround browser operations with a mutex to avoid race conditions from parallel tool calls
     const release = await mutex.acquire()
 
     // Query Google
+    const searchStart = new Date().getTime()
     const searchResults = await search(context, query)
+    console.log('search time:', new Date().getTime() - searchStart, 'ms')
 
     // Get the results of the first five pages
+    const pageStart = new Date().getTime()
     const results = searchResults.slice(0, 5)
     const pageContentsPromises = results.map(async (result) => await getContents(context, result.url))
     const pageContents = (await Promise.all(pageContentsPromises)).filter(c => c !== '').join('\n\n{PAGE SEPARATOR}\n\n')
+    console.log('page contents time:', new Date().getTime() - pageStart, 'ms')
 
     release()
 
     // Ask gpt-4o to generate an answer
+    const answerStart = new Date().getTime()
     const tool = new Tool({
       instructions: `Based on the provided contents of the web pages, answer the question.
       Provide as much detail as possible.
@@ -137,6 +148,7 @@ async function main (): Promise<void> {
       ${pageContents}`
     })
     const response = await exec(tool, { model: 'gpt-4o' })
+    console.log('answer time:', new Date().getTime() - answerStart, 'ms')
 
     res.send(response)
     res.end()
