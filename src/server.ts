@@ -75,7 +75,7 @@ run.on(gptscript.RunEventType.CallProgress, (data) => {
     return
   }
 
-  // process.stdout.write(data.content.slice(prev.length))
+  process.stdout.write(data.content.slice(prev.length))
   prev = data.content
 })
 await run.text()
