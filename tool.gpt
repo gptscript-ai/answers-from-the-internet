@@ -2,5 +2,5 @@ name: question-answerer
 description: Uses Google to answer the provided question
 args: question: the question to ask
 
-#!/usr/bin/env node --loader ts-node/esm ${GPTSCRIPT_TOOL_DIR}/src/server.ts
+#!/usr/bin/env node --no-warnings --loader ts-node/esm ${GPTSCRIPT_TOOL_DIR}/src/server.ts
 
