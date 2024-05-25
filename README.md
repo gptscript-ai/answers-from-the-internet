@@ -8,6 +8,8 @@ This tool answers a question provided to it by using the Chrome browser to searc
 gptscript github.com/gptscript-ai/browser-question '{"question":"Who was Oliver Cromwell?"}'
 ```
 
+## How it Works
+
 ```mermaid
 flowchart TD
     A(Begin execution) --> B(Parse input)
