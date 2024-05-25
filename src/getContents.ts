@@ -1,48 +1,40 @@
-import { type BrowserContext } from '@playwright/test'
+import { type Page } from '@playwright/test'
 import TurndownService from 'turndown'
 import * as cheerio from 'cheerio'
 
-export async function getContents (context: BrowserContext, url: string): Promise<string> {
-  const page = await context.newPage()
+export async function getContents (page: Page, url: string): Promise<string> {
   try {
-    await page.goto(url, { timeout: 5000 })
+    await page.goto(url, { timeout: 1000 })
   } catch (e) {
     console.warn('slow page:', url)
-    void page.close()
-    return '' // Page didn't load fast enough; just ignore.
   }
-  const content = await page.content()
+
+  let content = ''
+  while (content === '') {
+    let fails = 0
+    try {
+      content = await page.content()
+    } catch (e) {
+      fails++
+      if (fails > 2) {
+        void page.close()
+        console.warn('rip:', url)
+        return '' // Page didn't load; just ignore.
+      }
+      await new Promise(resolve => setTimeout(resolve, 100)) // sleep 100ms
+    }
+  }
   void page.close()
 
   const $ = cheerio.load(content)
 
-  $('script').each(function () {
-    const elem = $(this)
-    elem.contents().filter(function () {
-      return this.type === 'text'
-    }).remove()
-    const children = elem.contents()
-    elem.before(children)
-    elem.remove()
-  })
+  $('noscript').remove()
+  $('script').remove()
   $('style').remove()
   $('img').remove()
-  $('[style]').removeAttr('style')
-  $('[onclick]').removeAttr('onclick')
-  $('[onload]').removeAttr('onload')
-  $('[onerror]').removeAttr('onerror')
-
-  // Remove empty divs and spans
-  $('div').each(function () {
-    if ($(this).text() === '' && $(this).children().length === 0) {
-      $(this).remove()
-    }
-  })
-  $('span').each(function () {
-    if ($(this).text() === '' && $(this).children().length === 0) {
-      $(this).remove()
-    }
-  })
+  $('g').remove()
+  $('svg').remove()
+  $('iframe').remove()
 
   let resp = ''
   const turndownService = new TurndownService()

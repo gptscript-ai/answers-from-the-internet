@@ -1,12 +1,6 @@
 name: question-answerer
 description: Uses Google to answer the provided question
 args: question: the question to ask
-tools: service
 
-#!http://service.daemon.gptscript.local/ask
-
----
-name: service
-
-#!sys.daemon /usr/bin/env npm --prefix ${GPTSCRIPT_TOOL_DIR} run server
+#!/usr/bin/env node --loader ts-node/esm ${GPTSCRIPT_TOOL_DIR}/src/server.ts
 
