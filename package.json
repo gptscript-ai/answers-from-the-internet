@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsnd --respawn src/server.ts",
-    "server": "node --no-warnings --loader ts-node/esm src/server.ts"
+    "tool": "node --no-warnings --loader ts-node/esm src/server.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.41.2",
