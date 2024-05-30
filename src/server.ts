@@ -4,7 +4,7 @@ import { genQuery } from './genQuery.ts'
 import { getNewContext } from './context.ts'
 import * as gptscript from '@gptscript-ai/gptscript'
 
-const gptsClient = new gptscript.Client('', '/Users/grant/devel/gptscript/bin/gptscript')
+const gptsClient = new gptscript.Client('', '')
 
 const input = process.env.GPTSCRIPT_INPUT
 delete (process.env.GPTSCRIPT_INPUT)
