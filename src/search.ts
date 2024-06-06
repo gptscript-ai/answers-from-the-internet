@@ -2,7 +2,7 @@ import { type BrowserContext } from '@playwright/test'
 import * as cheerio from 'cheerio'
 import { getContents } from './getContents.ts'
 
-export async function search (context: BrowserContext, noJSContext: BrowserContext, query: string): Promise<string> {
+export async function search (browser: string, context: BrowserContext, noJSContext: BrowserContext, query: string): Promise<string> {
   const foundURLs = new Set<string>()
   const contentsPromises: Array<Promise<string>> = []
 
@@ -16,7 +16,13 @@ export async function search (context: BrowserContext, noJSContext: BrowserConte
   void page.close()
   const $ = cheerio.load(contents)
 
-  const elements = $('#rso a[ping]')
+  let selector = '#rso a[ping]'
+  if (browser === 'edge') {
+    // I am not sure why Google search results are different for Edge, but the anchor tags don't have [ping], so we use [jsname] instead.
+    selector = '#rso a[jsname]'
+  }
+
+  const elements = $(selector)
   let count = 0
   for (const e of elements) {
     const url = $(e).attr('href') ?? ''
