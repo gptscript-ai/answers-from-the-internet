@@ -1,6 +1,6 @@
 name: answers-from-the-internet
 description: Uses Google to answer the provided question
-credential: github.com/g-linville/credential as installedBrowser with "Which browser do you want to use? (Options: chrome, firefox, edge)" as message and "browser" as field and "GPTSCRIPT_INSTALLED_BROWSER" as env and false as sensitive
+credential: github.com/g-linville/credential as installedBrowser with "Which browser do you want to use? (Options: firefox, chrome, edge)" as message and "browser" as field and "GPTSCRIPT_INSTALLED_BROWSER" as env and false as sensitive
 args: question: the question to ask
 
 #!/usr/bin/env npm --prefix ${GPTSCRIPT_TOOL_DIR} run tool

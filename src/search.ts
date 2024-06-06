@@ -16,7 +16,13 @@ export async function search (browser: string, context: BrowserContext, noJSCont
   void page.close()
   const $ = cheerio.load(contents)
 
-  const elements = $('#rso a[jsname]')
+  let selector = '#rso a[ping]'
+  if (browser === 'edge') {
+    // I am not sure why Google search results are different for Edge, but the anchor tags don't have [ping], so we use [jsname] instead.
+    selector = '#rso a[jsname]'
+  }
+
+  const elements = $(selector)
   let count = 0
   for (const e of elements) {
     const url = $(e).attr('href') ?? ''
