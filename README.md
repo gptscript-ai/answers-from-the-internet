@@ -1,6 +1,6 @@
-# answers-from-the-internet
+# Answers from the Internet
 
-This tool answers a question provided to it by using the Chrome browser to search Google.
+This tool answers a question provided to it by using a browser to search Google.
 
 ## Example
 

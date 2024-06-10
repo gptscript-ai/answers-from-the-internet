@@ -4,6 +4,8 @@ import { genQuery } from './genQuery.ts'
 import { getNewContext } from './context.ts'
 import * as gptscript from '@gptscript-ai/gptscript'
 
+const VALID_BROWSERS = ['chrome', 'firefox', 'edge']
+
 const gptsClient = new gptscript.Client('', '')
 
 const input = process.env.GPTSCRIPT_INPUT
@@ -26,14 +28,21 @@ if (process.env.GPTSCRIPT_WORKSPACE_ID === undefined || process.env.GPTSCRIPT_WO
 }
 const sessionDir = path.resolve(process.env.GPTSCRIPT_WORKSPACE_DIR) + '/browser_session'
 
+const browserName = (process.env.GPTSCRIPT_INSTALLED_BROWSER ?? 'chrome').toLowerCase()
+if (!VALID_BROWSERS.includes(browserName)) {
+  console.log('error: invalid browser name', browserName)
+  console.log('valid browsers:', VALID_BROWSERS.join(', '))
+  process.exit(1)
+}
+
 // Simultaneously start the browser and generate our search query.
 const queryPromise = genQuery(question)
-const contextPromise = getNewContext(sessionDir, true)
-const noJSContextPromise = getNewContext(sessionDir + '_no_js', false)
+const contextPromise = getNewContext(browserName, sessionDir, true)
+const noJSContextPromise = getNewContext(browserName, sessionDir + '_no_js', false)
 const [query, context, noJSContext] = await Promise.all([queryPromise, contextPromise, noJSContextPromise])
 
 // Query Google
-const pageContents = await search(context, noJSContext, query)
+const pageContents = await search(browserName, context, noJSContext, query)
 void context.close()
 void noJSContext.close()
 

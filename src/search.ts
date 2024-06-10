@@ -2,7 +2,7 @@ import { type BrowserContext } from '@playwright/test'
 import * as cheerio from 'cheerio'
 import { getContents } from './getContents.ts'
 
-export async function search (context: BrowserContext, noJSContext: BrowserContext, query: string): Promise<string> {
+export async function search (browser: string, context: BrowserContext, noJSContext: BrowserContext, query: string): Promise<string> {
   const foundURLs = new Set<string>()
   const contentsPromises: Array<Promise<string>> = []
 
@@ -16,7 +16,7 @@ export async function search (context: BrowserContext, noJSContext: BrowserConte
   void page.close()
   const $ = cheerio.load(contents)
 
-  const elements = $('#rso a[ping]')
+  const elements = $('#rso a[jsname]')
   let count = 0
   for (const e of elements) {
     const url = $(e).attr('href') ?? ''
