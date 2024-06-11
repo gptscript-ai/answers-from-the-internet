@@ -19,7 +19,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@gptscript-ai/gptscript": "0.6.2",
+    "@gptscript-ai/gptscript": "0.8.1",
     "@types/turndown": "^5.0.4",
     "async-mutex": "^0.5.0",
     "body-parser": "^1.20.2",

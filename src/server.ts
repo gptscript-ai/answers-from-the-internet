@@ -6,7 +6,7 @@ import * as gptscript from '@gptscript-ai/gptscript'
 
 const VALID_BROWSERS = ['chrome', 'firefox', 'edge']
 
-const gptsClient = new gptscript.Client('', '')
+const gptsClient = new gptscript.GPTScript()
 
 const input = process.env.GPTSCRIPT_INPUT
 delete (process.env.GPTSCRIPT_INPUT)
@@ -47,9 +47,25 @@ void context.close()
 void noJSContext.close()
 
 // Ask gpt-4o to generate an answer
-const tool = `temperature: 0.2
-
-Based on the provided contents of the web pages, answer the question.
+const tool: gptscript.ToolDef = {
+  agents: [],
+  arguments: { type: 'object' },
+  chat: false,
+  context: [],
+  credentials: [],
+  description: '',
+  export: [],
+  exportContext: [],
+  globalModelName: '',
+  globalTools: [],
+  jsonResponse: false,
+  maxTokens: 0,
+  modelName: '',
+  modelProvider: false,
+  name: '',
+  tools: [],
+  temperature: 0.2,
+  instructions: `Based on the provided contents of the web pages, answer the question.
 Provide as much detail as possible.
 Do not repeat entire sentences word-for-word from the websites. Summarize and rephrase things in your own words.
 
@@ -74,17 +90,20 @@ question: ${question}
 page contents:
 
 ${pageContents}`
-const run = gptsClient.evaluate(tool, { disableCache: true })
+}
+
+const run = await gptsClient.evaluate(tool, { disableCache: true })
 let prev = ''
-run.on(gptscript.RunEventType.CallProgress, (data) => {
+run.on(gptscript.RunEventType.CallProgress, data => {
   // We don't want to start printing until we see the first "### Sources" line.
   // Also, sometimes the content will get messed up and a space will get dropped,
   // so we make sure each content includes the previous one before we print the new part of it.
-  if (data.content === undefined || !data.content.includes('###') || !data.content.includes(prev)) {
+  if (data.output.length < 1 || data.output[0].content === undefined || !data.output[0].content.includes('###') || !data.output[0].content.includes(prev)) {
     return
   }
 
-  process.stdout.write(data.content.slice(prev.length))
-  prev = data.content
+  process.stdout.write(data.output[0].content.slice(prev.length))
+  prev = data.output[0].content
 })
 await run.text()
+process.exit(0)
