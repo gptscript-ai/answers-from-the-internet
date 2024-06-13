@@ -1,10 +1,8 @@
 import path from 'node:path'
 import { search } from './search.ts'
 import { genQuery } from './genQuery.ts'
-import { getNewContext } from './context.ts'
+import { getBrowser, getNewContext } from './context.ts'
 import * as gptscript from '@gptscript-ai/gptscript'
-
-const VALID_BROWSERS = ['chrome', 'firefox', 'edge']
 
 const gptsClient = new gptscript.GPTScript()
 
@@ -28,12 +26,7 @@ if (process.env.GPTSCRIPT_WORKSPACE_ID === undefined || process.env.GPTSCRIPT_WO
 }
 const sessionDir = path.resolve(process.env.GPTSCRIPT_WORKSPACE_DIR) + '/browser_session'
 
-const browserName = (process.env.GPTSCRIPT_INSTALLED_BROWSER ?? 'chrome').toLowerCase()
-if (!VALID_BROWSERS.includes(browserName)) {
-  console.log('error: invalid browser name', browserName)
-  console.log('valid browsers:', VALID_BROWSERS.join(', '))
-  process.exit(1)
-}
+const browserName = await getBrowser()
 
 // Simultaneously start the browser and generate our search query.
 const queryPromise = genQuery(question)

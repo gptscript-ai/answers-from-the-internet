@@ -1,6 +1,25 @@
 import { type BrowserContext, chromium, firefox } from '@playwright/test'
 
+export async function getBrowser (): Promise<string> {
+  const browsers = [
+    { name: 'Chrome', launchFunction: async () => await chromium.launch({ channel: 'chrome' }) },
+    { name: 'Edge', launchFunction: async () => await chromium.launch({ channel: 'msedge' }) },
+    { name: 'Firefox', launchFunction: async () => await firefox.launch() }
+  ]
+
+  for (const browser of browsers) {
+    try {
+      const browserInstance = await browser.launchFunction()
+      void browserInstance.close()
+      return browser.name.toLowerCase()
+    } catch (error) {}
+  }
+
+  throw new Error('No supported browsers (Chrome, Edge, Firefox) are installed.')
+}
+
 export async function getNewContext (browser: string, sessionDir: string, javaScriptEnabled: boolean): Promise<BrowserContext> {
+  console.log(`Launching ${browser}...`)
   switch (browser) {
     case 'chrome':
       return await chromium.launchPersistentContext(
