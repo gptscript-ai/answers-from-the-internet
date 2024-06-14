@@ -19,7 +19,6 @@ export async function getBrowser (): Promise<string> {
 }
 
 export async function getNewContext (browser: string, sessionDir: string, javaScriptEnabled: boolean): Promise<BrowserContext> {
-  console.log(`Launching ${browser}...`)
   switch (browser) {
     case 'chrome':
       return await chromium.launchPersistentContext(
