@@ -17,7 +17,7 @@ export async function genQuery (question: string): Promise<string> {
     modelProvider: false,
     name: '',
     tools: [],
-    modelName: 'gpt-3.5-turbo',
+    modelName: 'gpt-4o',
     instructions: `
     Based on the provided question, generate a query that can be used to search Google for relevant search results. Do not quote the output.
   
