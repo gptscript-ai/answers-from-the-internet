@@ -7,8 +7,6 @@ import { rmSync } from 'node:fs'
 
 const gptsClient = new gptscript.GPTScript()
 
-delete process.env.GPTSCRIPT_INPUT
-
 const question: string = process.env.QUESTION ?? ''
 if (question === '') {
   console.log('error: no question provided')
