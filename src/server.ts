@@ -88,9 +88,13 @@ run.on(gptscript.RunEventType.CallProgress, data => {
   process.stdout.write(data.output[0].content.slice(prev.length))
   prev = data.output[0].content
 })
+
+// While we wait for GPTScript to execute, we want to remove the session dirs we used.
+// Each session dir is usually at least 20MB, and they are one-time use, so we don't need to keep them around.
 await context.context.close()
 await noJSContext.context.close()
 rmSync(context.sessionDir, { recursive: true, force: true })
 rmSync(noJSContext.sessionDir, { recursive: true, force: true })
+
 await run.text()
 process.exit(0)
