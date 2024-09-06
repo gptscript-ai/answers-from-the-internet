@@ -28,8 +28,6 @@ const [query, context, noJSContext] = await Promise.all([queryPromise, contextPr
 
 // Query Google
 const pageContents = await search(browserName, context.context, noJSContext.context, query)
-await context.context.close()
-await noJSContext.context.close()
 
 // Ask gpt-4o to generate an answer
 const tool: gptscript.ToolDef = {
@@ -90,6 +88,8 @@ run.on(gptscript.RunEventType.CallProgress, data => {
   process.stdout.write(data.output[0].content.slice(prev.length))
   prev = data.output[0].content
 })
+await context.context.close()
+await noJSContext.context.close()
 rmSync(context.sessionDir, { recursive: true, force: true })
 rmSync(noJSContext.sessionDir, { recursive: true, force: true })
 await run.text()
