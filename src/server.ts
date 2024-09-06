@@ -3,18 +3,13 @@ import { search } from './search.ts'
 import { genQuery } from './genQuery.ts'
 import { getBrowser, getNewContext } from './context.ts'
 import * as gptscript from '@gptscript-ai/gptscript'
+import { rmSync } from 'node:fs'
 
 const gptsClient = new gptscript.GPTScript()
 
-const input = process.env.GPTSCRIPT_INPUT
-delete (process.env.GPTSCRIPT_INPUT)
-if (input === undefined) {
-  console.log('error: no input provided')
-  process.exit(1)
-}
+delete process.env.GPTSCRIPT_INPUT
 
-const data = JSON.parse(input)
-const question: string = data.question ?? ''
+const question: string = process.env.QUESTION ?? ''
 if (question === '') {
   console.log('error: no question provided')
   process.exit(1)
@@ -24,20 +19,19 @@ if (process.env.GPTSCRIPT_WORKSPACE_ID === undefined || process.env.GPTSCRIPT_WO
   console.log('error: GPTScript workspace ID and directory are not set')
   process.exit(1)
 }
-const sessionDir = path.resolve(process.env.GPTSCRIPT_WORKSPACE_DIR) + '/browser_session'
 
 const browserName = await getBrowser()
 
 // Simultaneously start the browser and generate our search query.
 const queryPromise = genQuery(question)
-const contextPromise = getNewContext(browserName, sessionDir, true)
-const noJSContextPromise = getNewContext(browserName, sessionDir + '_no_js', false)
+const contextPromise = getNewContext(browserName, path.resolve(process.env.GPTSCRIPT_WORKSPACE_DIR), true)
+const noJSContextPromise = getNewContext(browserName, path.resolve(process.env.GPTSCRIPT_WORKSPACE_DIR), false)
 const [query, context, noJSContext] = await Promise.all([queryPromise, contextPromise, noJSContextPromise])
 
 // Query Google
-const pageContents = await search(browserName, context, noJSContext, query)
-void context.close()
-void noJSContext.close()
+const pageContents = await search(browserName, context.context, noJSContext.context, query)
+await context.context.close()
+await noJSContext.context.close()
 
 // Ask gpt-4o to generate an answer
 const tool: gptscript.ToolDef = {
@@ -98,5 +92,7 @@ run.on(gptscript.RunEventType.CallProgress, data => {
   process.stdout.write(data.output[0].content.slice(prev.length))
   prev = data.output[0].content
 })
+rmSync(context.sessionDir, { recursive: true, force: true })
+rmSync(noJSContext.sessionDir, { recursive: true, force: true })
 await run.text()
 process.exit(0)
