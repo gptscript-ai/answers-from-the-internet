@@ -1,4 +1,5 @@
 import { type BrowserContext, chromium, firefox } from '@playwright/test'
+import { randomInt } from 'node:crypto'
 
 export async function getBrowser (): Promise<string> {
   const browsers = [
@@ -22,10 +23,17 @@ export async function getBrowser (): Promise<string> {
   throw new Error(`No supported browsers (Chrome, Edge, Firefox) are installed. ${errors}`)
 }
 
-export async function getNewContext (browser: string, sessionDir: string, javaScriptEnabled: boolean): Promise<BrowserContext> {
+export interface ContextAndSessionDir {
+  context: BrowserContext
+  sessionDir: string
+}
+
+export async function getNewContext (browser: string, workspaceDir: string, javaScriptEnabled: boolean): Promise<ContextAndSessionDir> {
+  const sessionDir = workspaceDir + '/afti_browser_session_' + randomInt(1, 1000000).toString()
+  let context: BrowserContext
   switch (browser) {
     case 'chromium':
-      return await chromium.launchPersistentContext(
+      context = await chromium.launchPersistentContext(
         sessionDir,
         {
           userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -35,8 +43,9 @@ export async function getNewContext (browser: string, sessionDir: string, javaSc
           ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'],
           javaScriptEnabled
         })
+      break
     case 'chrome':
-      return await chromium.launchPersistentContext(
+      context = await chromium.launchPersistentContext(
         sessionDir,
         {
           userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -47,8 +56,9 @@ export async function getNewContext (browser: string, sessionDir: string, javaSc
           ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'],
           javaScriptEnabled
         })
+      break
     case 'firefox':
-      return await firefox.launchPersistentContext(
+      context = await firefox.launchPersistentContext(
         sessionDir,
         {
           userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/89.0 Safari/537.36',
@@ -56,8 +66,9 @@ export async function getNewContext (browser: string, sessionDir: string, javaSc
           viewport: null,
           javaScriptEnabled
         })
+      break
     case 'edge':
-      return await chromium.launchPersistentContext(
+      context = await chromium.launchPersistentContext(
         sessionDir,
         {
           userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.64',
@@ -68,7 +79,10 @@ export async function getNewContext (browser: string, sessionDir: string, javaSc
           ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'],
           javaScriptEnabled
         })
+      break
     default:
       throw new Error(`Unknown browser: ${browser}`)
   }
+
+  return { context, sessionDir }
 }
