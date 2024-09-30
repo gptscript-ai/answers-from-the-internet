@@ -1,4 +1,5 @@
 name: answers-from-the-internet
+share context: github.com/gptscript-ai/credentials/model-provider
 description: Uses Google to answer the provided question
 args: question: the question to ask
 

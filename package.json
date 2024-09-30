@@ -18,7 +18,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@gptscript-ai/gptscript": "0.8.1",
+    "@gptscript-ai/gptscript": "github:gptscript-ai/node-gptscript#9f7fc5e6233ee90418dbc52b405b0991ab90e7f2",
     "@playwright/test": "^1.41.2",
     "@types/turndown": "^5.0.4",
     "async-mutex": "^0.5.0",

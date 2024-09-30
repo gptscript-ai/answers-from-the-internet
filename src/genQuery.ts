@@ -1,6 +1,7 @@
 import * as gptscript from '@gptscript-ai/gptscript'
 
 export async function genQuery (question: string): Promise<string> {
+  console.error('GPTSCRIPT_URL:', process.env.GPTSCRIPT_URL)
   const tool: gptscript.ToolDef = {
     agents: [],
     arguments: { type: 'object' },
