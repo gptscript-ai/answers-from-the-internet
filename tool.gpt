@@ -3,4 +3,4 @@ share context: github.com/gptscript-ai/credentials/model-provider
 description: Uses Google to answer the provided question
 args: question: the question to ask
 
-#!/usr/bin/env npm --prefix ${GPTSCRIPT_TOOL_DIR} run tool
+#!/usr/bin/env npm --prefix ${GPTSCRIPT_TOOL_DIR} run tool --silent
